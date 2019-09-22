@@ -58,7 +58,64 @@ def generate_co2():
     generate_base(co2_data, ('1800-01', '2019-08'), '1819-01', u'全球平均二氧化碳排放量（千万吨）', 'co2_data', '480M')
 
 
+def generate_loss():
+    total_loss = pd.read_csv(os.path.join(ROOT_DIR, 'datasets/total_loss1.csv'), index_col=[0])
+    plt.rcParams["font.family"] = 'Arial Unicode MS'
+    fig = plt.figure(figsize=(6.4, 4.8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(np.array(total_loss), 'b', label='loss')
+    ax.set_ylabel(u'训练过程')
+    plt.xticks(rotation=45)
+    plt.show()
+    fig.savefig(os.path.join(ROOT_DIR, 'datasets/train_loss.svg'), dpi=600)
+
+
+def generate_predict():
+    predict = get_csv('predict_temp.csv')
+    test_data = get_csv('datasets/test_temp.csv')
+    real_data = test_data['real_data']
+    predict_data = test_data['predict_data']
+
+    predict_data = predict_data.append(predict['0'])
+    predict_data.reset_index()
+
+    date = pd.date_range('1802-01', '2019-08', freq='12M')
+    date1 = pd.date_range('1802-01', '2044-08', freq='12M')
+
+    plt.rcParams["font.family"] = 'Arial Unicode MS'
+    fig = plt.figure(figsize=(6.4, 4.8))
+    ax = fig.add_subplot(1, 1, 1)
+
+    ax.plot(date1, predict_data, 'b', label='prediction')
+    ax.plot(date, real_data, 'r', label='real')
+    ax.legend(loc='best')
+    ax.set_ylabel(u'预测结果（℃）')
+
+    ax.xaxis.set_major_formatter(mdate.DateFormatter('%Y'))  # 设置时间标签显示格式
+    ax.xaxis.set_major_locator(mdate.YearLocator())
+
+    plt.xticks(pd.date_range('1804-01', '2044-08', freq='480M'), rotation=45)
+    plt.show()
+    fig.savefig(os.path.join(ROOT_DIR, 'datasets/predict.svg'), dpi=600)
+
+
+def generate_predict_diagram():
+    test_data = get_csv('datasets/test_temp.csv')
+    test_data['error'] = test_data['real_data'] - test_data['predict_data']
+    test_data.to_csv(os.path.join(ROOT_DIR, 'datasets/predict_error.csv'))
+
+
+def generate_precip():
+    precip_data = pd.read_csv(os.path.join(ROOT_DIR, 'datasets/precip_year.csv'), index_col=[0])
+
+    generate_base(precip_data, ('1800-01', '2019-06'), '1819-01', u'全球降水量（mm）', 'precip_data', '480M')
+
+
+# generate_precip()
+# generate_predict_diagram()
+# generate_predict()
 # generate_earth_temp()
 # generate_sea_temp()
 # generate_olr()
 # generate_co2()
+# generate_loss()

@@ -99,6 +99,11 @@ def calculate_month_and_years_mean(size, lat_size, lon_size, root, filename, wei
 # calculate_month_and_years_mean(535, 73, 144, ROOT_DIR,
 #                                'datasets/olr_mean.csv', 18.5, 'datasets/olr_month.csv', 'datasets/olr_year.csv')
 
+# calculate_month_and_years_mean(1542, 180, 360, ROOT_DIR,
+#                                'datasets/precip_mean.csv', 14,
+#                                'datasets/precip_month.csv', 'datasets/precip_year.csv')
+
+
 
 def write_nc2csv_olr(root, file_path="datasets/olr.mon.mean.nc"):
 
@@ -142,12 +147,45 @@ def write_nc2csv_olr(root, file_path="datasets/olr.mon.mean.nc"):
     fram_data.to_csv(os.path.join(ROOT_DIR, 'datasets/olr_mean.csv'))
 
 
-# data = pd.read_csv(os.path.join(ROOT_DIR, 'datasets/olr_month.csv'), index_col=False)
-# last = len(data)-1
-# for i in range(55):
-#     a = np.random.random()*400
-#     data.append(data[last] + a)
-#     last += 1
-#
-# data = pd.DataFrame(data)
-# data.to_csv(os.path.join(ROOT_DIR, 'datasets/olr_month.csv'))
+def write_nc2csv_precip(root, file_path="datasets/precip.mon.nc"):
+
+    DATA_PATH = os.path.join(root, file_path)
+
+    data = Dataset(DATA_PATH)
+
+    keys = data.variables.keys()
+
+
+    lat = data.variables['lat'][:]
+    lon = data.variables['lon'][:]
+    time = data.variables['time'][:]
+    precip = data.variables['precip'][:]
+
+    precip_temp = None
+
+    dict_data = {}
+    dict_data['time'] = time
+    temp_array = np.zeros(len(time))
+    temp_array[0:lat.size] = lat
+    dict_data['lat'] = temp_array
+    temp_array = temp_array * 0
+    temp_array[0:lon.size] = lon
+    dict_data['lon'] = temp_array
+    temp_array = temp_array * 0
+    temp_array[0] = len(time)
+    dict_data['size'] = temp_array
+    temp_data = pd.DataFrame(dict_data)
+    temp_data.to_csv(os.path.join(ROOT_DIR, 'datasets/precip_mean_att.csv'))
+
+    for i in range(precip.shape[2]):
+        precip1 = np.asarray(precip[:, :, i])
+        precip1[precip1 == -9.96921e+36] = np.nan
+        if precip_temp is None:
+            precip_temp = precip1
+        else:
+            precip_temp = np.vstack((precip_temp, precip1))
+
+    fram_data = pd.DataFrame(precip_temp)
+    fram_data.to_csv(os.path.join(ROOT_DIR, 'datasets/precip_mean.csv'))
+
+# write_nc2csv_precip(ROOT_DIR)

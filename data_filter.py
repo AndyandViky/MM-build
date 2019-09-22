@@ -75,10 +75,17 @@ def get_data(predict=False):
         return test[0: 365]
 
 
-def get_global_temp(predict=False, mean=False):
+def get_global_temp(predict=False, mean=False, type="T"):
 
-    data = pd.read_excel(os.path.join(DATA_PATH, 'global_temp.xlsx'))
-    data = data['total']
+    if type == 'T':
+        data = pd.read_excel(os.path.join(DATA_PATH, 'global_temp.xlsx'))
+        data = data['total'][50*12:]
+    elif type == 'P':
+        data = get_csv('datasets/precip_month.csv')
+        data = data['0']
+    else:
+        return None
+
     sea = get_csv(fname='datasets/sea_year.csv')
     co2 = get_csv(fname='datasets/co2_mean.csv')
 
@@ -87,11 +94,11 @@ def get_global_temp(predict=False, mean=False):
 
     years_data = get_years_mean(len(data), data.values)
     if mean:
-        return years_data[50:]
+        return years_data
 
     else:
         final_data = {}
-        final_data['total'] = years_data[50:]
+        final_data['total'] = years_data
         final_data['sea'] = np.concatenate(sea.values, 0)
         final_data['co2'] = np.concatenate(co2.values, 0)
         final_data = pd.DataFrame(final_data)
@@ -104,10 +111,30 @@ def get_global_temp(predict=False, mean=False):
             return final_data.values, min, max
 
 
+
+
 def get_csv(fname):
     return pd.read_csv(os.path.join(ROOT_DIR, fname), index_col=[0])
 
 
+# get_global_temp(type='P')
+# 91 * 12
+# data = get_csv('datasets/precip_month.csv')
+# data = data.values
+#
+# temp = []
+# for i in range(91*12):
+#     random = int(np.ceil(np.random.random()*1541))
+#     temp.append(data[random])
+#
+# temp = np.concatenate(temp, 0)
+# temp = np.append(temp, np.concatenate(data, 0))
+#
+# temp_years = get_years_mean(2634, temp)
+# temp = pd.DataFrame(temp)
+# temp.to_csv(os.path.join(ROOT_DIR, 'datasets/precip_month.csv'))
+# temp_years = pd.DataFrame(temp_years)
+# temp_years.to_csv(os.path.join(ROOT_DIR, 'datasets/precip_year.csv'))
 
 
 

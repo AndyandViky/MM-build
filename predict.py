@@ -22,7 +22,6 @@ else:
 datas = torch.from_numpy(datas).to(DEVICE).float()
 datas = datas.reshape(1, input_feature_size, look_back)
 
-data = torch.load('./model.pkl')
 # load model
 model = RNN(look_back, hidden_layer, output_size, num_layers).to(DEVICE)
 model.load_state_dict(torch.load('./model.pkl'))

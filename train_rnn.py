@@ -14,11 +14,10 @@ from data_filter import get_data, get_global_temp
 from model import RNN
 from config import PARAMS, DEVICE, ROOT_DIR
 from utils import creat_dataset
-from generate_picture import generate_base
 
-
+data_type = 'T'
 epochs, look_back, hidden_layer, output_size, num_layers, lr, input_feature_size, out_feature_size = PARAMS
-datas, min, max = get_global_temp()
+datas, min, max = get_global_temp(type=data_type)
 if len(datas.shape) == 1:
     input_feature_size = 1
 else:
@@ -41,6 +40,7 @@ model = RNN(look_back, hidden_layer, output_size, num_layers).to(DEVICE)
 optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.5, 0.99), weight_decay=2.5*1e-5)
 loss_func = nn.MSELoss().to(DEVICE)
 
+total_loss = []
 for i in range(epochs):
     x = x_train.float()
     y = y_train.float()
@@ -51,8 +51,13 @@ for i in range(epochs):
     loss.backward()
     optimizer.step()
 
-    if (i+1) % 5 == 0:
+    if (i+1) % 10 == 0:
         print('Epoch:{}, Loss:{:.5f}'.format(i+1, loss.item()))
+        total_loss.append(loss.item())
+
+# create loss csv file
+total_loss = pd.DataFrame(total_loss)
+total_loss.to_csv(os.path.join(ROOT_DIR, 'datasets/total_loss_{}.csv'.format(data_type)))
 
 # save model
 torch.save(model.state_dict(), './model.pkl')
@@ -68,6 +73,14 @@ pred_test = pred.view(-1, input_feature_size).data.numpy()
 for i in range(out_feature_size):
     true_data = pred_test[:, i] * (max - min) + min
     true_real_data = dataY[:, i] * (max - min) + min
+
+    # save final result to csv
+    result = {}
+    result['predict_data'] = true_data
+    result['real_data'] = true_real_data
+    result = pd.DataFrame(result)
+    result.to_csv(os.path.join(ROOT_DIR, 'datasets/test_{}.csv'.format(data_type)))
+
     date = pd.date_range('1802-01', '2019-08', freq='12M')
 
     plt.rcParams["font.family"] = 'Arial Unicode MS'
@@ -84,5 +97,5 @@ for i in range(out_feature_size):
 
     plt.xticks(pd.date_range('1819-01', '2019-08', freq='480M'), rotation=45)
     plt.show()
-    fig.savefig(os.path.join(ROOT_DIR, 'datasets/test.svg'), dpi=600)
+    fig.savefig(os.path.join(ROOT_DIR, 'datasets/test_{}.svg'.format(data_type)), dpi=600)
 

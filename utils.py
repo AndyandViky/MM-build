@@ -37,7 +37,10 @@ def get_years_mean(size, data, change_type='M'):
     else:
         return None
     last_years_month = size % divided
-    total_years = int((size - last_years_month) / divided) + 1
+    if last_years_month == 0:
+        total_years = int((size - last_years_month) / divided)
+    else:
+        total_years = int((size - last_years_month) / divided) + 1
 
     years_average = []
     for i in range(total_years):
