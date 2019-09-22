@@ -12,7 +12,7 @@ from model import RNN
 from data_filter import get_data, get_global_temp
 from config import PARAMS, DEVICE
 
-data_type = 'P'
+data_type = 'T'
 epochs, look_back, hidden_layer, output_size, num_layers, lr, input_feature_size, out_feature_size = PARAMS
 datas, min, max = get_global_temp(predict=True, type=data_type)
 if len(datas.shape) == 1:

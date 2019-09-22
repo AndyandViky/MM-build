@@ -15,14 +15,14 @@ from model import RNN
 from config import PARAMS, DEVICE, ROOT_DIR
 from utils import creat_dataset
 
-data_type = 'P'
+data_type = 'T'
 epochs, look_back, hidden_layer, output_size, num_layers, lr, input_feature_size, out_feature_size = PARAMS
 datas, min, max = get_global_temp(type=data_type)
 if len(datas.shape) == 1:
     input_feature_size = 1
 else:
     input_feature_size = datas.shape[1]
-data_type
+
 # data loader and prepare
 dataX, dataY = creat_dataset(datas, look_back)
 dataX = torch.from_numpy(dataX).to(DEVICE)

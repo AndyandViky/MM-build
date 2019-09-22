@@ -100,7 +100,7 @@ def generate_predict_temp(predict_name, test_file_path, data_type="T"):
     fig.savefig(os.path.join(ROOT_DIR, 'datasets/predict_{}.svg'.format(data_type)), dpi=600)
 
 
-# generate_predict_temp('predict_P.csv', 'datasets/test_P.csv', 'P')
+# generate_predict_temp('predict_T.csv', 'datasets/test_T.csv', 'T')
 
 
 def generate_predict_diagram(data_type='P'):
@@ -139,10 +139,31 @@ def generate_pca_matrix():
 
 # generate_pca_matrix()
 # generate_precip()
-# generate_predict_diagram(data_type='P')
+# generate_predict_diagram(data_type='T')
 # generate_predict()
 # generate_earth_temp()
 # generate_sea_temp()
 # generate_olr()
 # generate_co2()
 # generate_loss()
+
+# data = get_csv("datasets/test_P.csv")
+# predict_data = data["predict_data"]
+# real_data = data["real_data"]
+# date = pd.date_range('1802-01', '2019-08', freq='12M')
+#
+# plt.rcParams["font.family"] = 'Arial Unicode MS'
+# fig = plt.figure(figsize=(6.4, 4.8))
+# ax = fig.add_subplot(1, 1, 1)
+#
+# ax.plot(date, predict_data, 'b', label='prediction')
+# ax.plot(date, real_data, 'r', label='real')
+# ax.legend(loc='best')
+# ax.set_ylabel(u'测试结果（mm）')
+#
+# ax.xaxis.set_major_formatter(mdate.DateFormatter('%Y'))  # 设置时间标签显示格式
+# ax.xaxis.set_major_locator(mdate.YearLocator())
+#
+# plt.xticks(pd.date_range('1819-01', '2019-08', freq='480M'), rotation=45)
+# plt.show()
+# fig.savefig(os.path.join(ROOT_DIR, 'datasets/test_{}.svg'.format('P')), dpi=600)

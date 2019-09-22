@@ -89,19 +89,19 @@ def get_global_temp(predict=False, mean=False, type="T"):
     sea = get_csv(fname='datasets/sea_year.csv')
     co2 = get_csv(fname='datasets/co2_mean.csv')
 
-    min = data.min()
-    max = data.max()
-
     years_data = get_years_mean(len(data), data.values)
     if mean:
         return years_data
 
     else:
+        min = years_data.min()
+        max = years_data.max()
         final_data = {}
         final_data['total'] = years_data
         final_data['sea'] = np.concatenate(sea.values, 0)
         final_data['co2'] = np.concatenate(co2.values, 0)
         final_data = pd.DataFrame(final_data)
+
         final_data = (final_data - final_data.min()) / (final_data.max() - final_data.min())
 
         look_back = PARAMS[1]
@@ -113,8 +113,6 @@ def get_global_temp(predict=False, mean=False, type="T"):
 
 def get_csv(fname):
     return pd.read_csv(os.path.join(ROOT_DIR, fname), index_col=[0])
-
-
 
 
 
