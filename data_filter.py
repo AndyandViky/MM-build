@@ -111,30 +111,9 @@ def get_global_temp(predict=False, mean=False, type="T"):
             return final_data.values, min, max
 
 
-
-
 def get_csv(fname):
     return pd.read_csv(os.path.join(ROOT_DIR, fname), index_col=[0])
 
-
-# get_global_temp(type='P')
-# 91 * 12
-# data = get_csv('datasets/precip_month.csv')
-# data = data.values
-#
-# temp = []
-# for i in range(91*12):
-#     random = int(np.ceil(np.random.random()*1541))
-#     temp.append(data[random])
-#
-# temp = np.concatenate(temp, 0)
-# temp = np.append(temp, np.concatenate(data, 0))
-#
-# temp_years = get_years_mean(2634, temp)
-# temp = pd.DataFrame(temp)
-# temp.to_csv(os.path.join(ROOT_DIR, 'datasets/precip_month.csv'))
-# temp_years = pd.DataFrame(temp_years)
-# temp_years.to_csv(os.path.join(ROOT_DIR, 'datasets/precip_year.csv'))
 
 
 

@@ -12,6 +12,7 @@ import matplotlib.dates as mdate
 
 from config import ROOT_DIR
 from data_filter import get_global_temp, get_csv
+from utils import get_years_mean
 
 
 def generate_base(data, dates, begin, title, label, freq='480M'):
@@ -70,9 +71,9 @@ def generate_loss():
     fig.savefig(os.path.join(ROOT_DIR, 'datasets/train_loss.svg'), dpi=600)
 
 
-def generate_predict():
-    predict = get_csv('predict_temp.csv')
-    test_data = get_csv('datasets/test_temp.csv')
+def generate_predict_temp(predict_name, test_file_path, data_type="T"):
+    predict = get_csv(predict_name)
+    test_data = get_csv(test_file_path)
     real_data = test_data['real_data']
     predict_data = test_data['predict_data']
 
@@ -96,13 +97,16 @@ def generate_predict():
 
     plt.xticks(pd.date_range('1804-01', '2044-08', freq='480M'), rotation=45)
     plt.show()
-    fig.savefig(os.path.join(ROOT_DIR, 'datasets/predict.svg'), dpi=600)
+    fig.savefig(os.path.join(ROOT_DIR, 'datasets/predict_{}.svg'.format(data_type)), dpi=600)
 
 
-def generate_predict_diagram():
-    test_data = get_csv('datasets/test_temp.csv')
+# generate_predict_temp('predict_P.csv', 'datasets/test_P.csv', 'P')
+
+
+def generate_predict_diagram(data_type='P'):
+    test_data = get_csv('datasets/test_{}.csv'.format(data_type))
     test_data['error'] = test_data['real_data'] - test_data['predict_data']
-    test_data.to_csv(os.path.join(ROOT_DIR, 'datasets/predict_error.csv'))
+    test_data.to_csv(os.path.join(ROOT_DIR, 'datasets/predict_error_{}.csv'.format(data_type)))
 
 
 def generate_precip():
@@ -111,8 +115,31 @@ def generate_precip():
     generate_base(precip_data, ('1800-01', '2019-06'), '1819-01', u'全球降水量（mm）', 'precip_data', '480M')
 
 
+def generate_pca_matrix():
+    sea = get_csv("datasets/sea_year.csv")
+    olr = get_csv("datasets/olr_year.csv")
+    precip = get_csv("datasets/precip_year.csv")
+    co2 = get_csv("datasets/co2_mean.csv")
+    temp = pd.read_excel(os.path.join(ROOT_DIR, 'datasets/global_temp.xlsx'))['total'][50 * 12:]
+    temp = get_years_mean(len(temp), temp.values)
+
+    minlen = len(sea) - len(olr)
+
+    result = {}
+    result['year'] = np.array([i for i in range(1975, 2020)])
+    result['sea'] = np.concatenate(sea[minlen:].values, 0)
+    result['olr'] = np.concatenate(olr.values, 0)
+    result['precip'] = np.concatenate(precip[minlen:].values, 0)
+    result['co2'] = np.concatenate(co2[minlen:].values, 0)
+    result['temp'] = temp[minlen:]
+
+    result = pd.DataFrame(result)
+    result.to_csv(os.path.join(ROOT_DIR, 'datasets/pca_matrix.csv'))
+
+
+# generate_pca_matrix()
 # generate_precip()
-# generate_predict_diagram()
+# generate_predict_diagram(data_type='P')
 # generate_predict()
 # generate_earth_temp()
 # generate_sea_temp()

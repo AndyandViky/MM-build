@@ -12,8 +12,9 @@ from model import RNN
 from data_filter import get_data, get_global_temp
 from config import PARAMS, DEVICE
 
+data_type = 'P'
 epochs, look_back, hidden_layer, output_size, num_layers, lr, input_feature_size, out_feature_size = PARAMS
-datas, min, max = get_global_temp(predict=True)
+datas, min, max = get_global_temp(predict=True, type=data_type)
 if len(datas.shape) == 1:
     input_feature_size = 1
 else:
@@ -39,7 +40,7 @@ predict_result = np.concatenate(predict_result, 0)
 predict_result = predict_result * (max - min) + min
 
 predict_result = pd.DataFrame(predict_result)
-predict_result.to_csv('./predict.csv')
+predict_result.to_csv('./predict_{}.csv'.format(data_type))
 
 
 
