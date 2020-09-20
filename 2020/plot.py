@@ -236,86 +236,7 @@ class Q4:
         plt.savefig('./result/confusion_xgb.png', dpi=200)
 
 
-# def plot_brain():
-#     import numpy as np
-#     import matplotlib.pyplot as plt
-#
-#     from sklearn.pipeline import Pipeline
-#     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-#     from sklearn.model_selection import ShuffleSplit, cross_val_score
-#
-#     from mne import Epochs, pick_types, events_from_annotations
-#     from mne.channels import make_standard_montage
-#     from mne.io import concatenate_raws, read_raw_edf
-#     from mne.datasets import eegbci
-#     from mne.decoding import CSP
-#
-#     print(__doc__)
-#
-#     # #############################################################################
-#     # # Set parameters and read data
-#
-#     # avoid classification of evoked responses by using epochs that start 1s after
-#     # cue onset.
-#     tmin, tmax = -1., 4.
-#     event_id = dict(hands=2, feet=3)
-#     subject = 1
-#     runs = [6, 10, 14]  # motor imagery: hands vs feet
-#
-#     raw_fnames = eegbci.load_data(subject, runs)
-#     raw = concatenate_raws([read_raw_edf(f, preload=True) for f in raw_fnames])
-#     eegbci.standardize(raw)  # set channel names
-#     montage = make_standard_montage('standard_1005')
-#     raw.set_montage(montage)
-#
-#     # strip channel names of "." characters
-#     raw.rename_channels(lambda x: x.strip('.'))
-#
-#     # Apply band-pass filter
-#     raw.filter(7., 30., fir_design='firwin', skip_by_annotation='edge')
-#
-#     events, _ = events_from_annotations(raw, event_id=dict(T1=2, T2=3))
-#
-#     picks = pick_types(raw.info, meg=False, eeg=True, stim=False, eog=False,
-#                        exclude='bads')
-#
-#     # Read epochs (train will be done only between 1 and 2s)
-#     # Testing will be done with a running classifier
-#     epochs = Epochs(raw, events, event_id, tmin, tmax, proj=True, picks=picks,
-#                     baseline=None, preload=True)
-#     epochs_train = epochs.copy().crop(tmin=1., tmax=2.)
-#     labels = epochs.events[:, -1] - 2
-#
-#     # Define a monte-carlo cross-validation generator (reduce variance):
-#     scores = []
-#     epochs_data = epochs.get_data()
-#     epochs_data_train = epochs_train.get_data()
-#     cv = ShuffleSplit(10, test_size=0.2, random_state=42)
-#     cv_split = cv.split(epochs_data_train)
-#
-#     # Assemble a classifier
-#     lda = LinearDiscriminantAnalysis()
-#     csp = CSP(n_components=20, reg=None, log=True, norm_trace=False)
-#
-#     # Use scikit-learn Pipeline with cross_val_score function
-#     clf = Pipeline([('CSP', csp), ('LDA', lda)])
-#     scores = cross_val_score(clf, epochs_data_train, labels, cv=cv, n_jobs=1)
-#
-#     # Printing the results
-#     class_balance = np.mean(labels == labels[0])
-#     class_balance = max(class_balance, 1. - class_balance)
-#     print("Classification accuracy: %f / Chance level: %f" % (np.mean(scores),
-#                                                               class_balance))
-#
-#     # plot CSP patterns estimated on full data for visualization
-#     csp.fit_transform(epochs_data, labels)
-#
-#     fig = csp.plot_patterns(epochs.info, ch_type='eeg', units='uv', size=1.5)
-#     fig.savefig('./result/two.png', format='png', dpi=500)
-
-
 # Q4().plot_train_test()
-# plot_brain()
 
 
 class Q2:
@@ -346,7 +267,58 @@ class Q2:
 class Q3:
 
     def plot_acc(self):
-        pass
+
+        datas = np.array([
+            [87, 89, 96.6, 98.6],
+            [89, 91, 97.1, 99],
+            [86, 87.5, 95.8, 97.6],
+            [87, 88.1, 96.1, 98.5],
+            [88, 90.5, 96.8, 98.89],
+        ])
+        x = [60, 70, 80, 90]
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        markes = ['o', 's', '^', 'p', 'h', 'd']
+        names = ['S1', 'S2', 'S3', 'S4', 'S5']
+        fig, ax = plt.subplots()
+        ax.set_xlabel('有标签数据占比（%）', fontsize=15)
+        ax.set_ylabel('Accuracy', fontsize=15)
+        ax.grid(alpha=0.5)
+
+        y_major_locator = MultipleLocator(3)
+        ax.yaxis.set_major_locator(y_major_locator)
+        for i in range(5):
+            ax.plot(x, datas[i], label=names[i], marker=markes[i], markersize=5, linewidth=1)
+
+        ax.legend(prop={'size': 14})
+        # plt.show()
+        plt.savefig('./result/{}.png'.format('acc_semi'), dpi=200)
 
     def plot_f1(self):
-        pass
+
+        datas = np.array([
+            [75.9, 75, 91, 97],
+            [76.3, 78, 92.88, 97.23],
+            [75.79, 76.8, 91.9, 97],
+            [76, 77.6, 90.8, 97.1],
+            [76, 77.8, 92, 97.2],
+        ])
+        x = [60, 70, 80, 90]
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        markes = ['o', 's', '^', 'p', 'h', 'd']
+        names = ['S1', 'S2', 'S3', 'S4', 'S5']
+        fig, ax = plt.subplots()
+        ax.set_xlabel('有标签数据占比（%）', fontsize=15)
+        ax.set_ylabel('F1-score', fontsize=15)
+        ax.grid(alpha=0.5)
+
+        y_major_locator = MultipleLocator(3)
+        ax.yaxis.set_major_locator(y_major_locator)
+        for i in range(5):
+            ax.plot(x, datas[i], label=names[i], marker=markes[i], markersize=5, linewidth=1)
+
+        ax.legend(prop={'size': 14})
+        # plt.show()
+        plt.savefig('./result/{}.png'.format('f1_semi'), dpi=200)
+
+
+# Q3().plot_acc()
