@@ -1,0 +1,6 @@
+.DS_Store
+datasets/
+result
+classifier.pk
+channelFilter.pk
+__pycache__
