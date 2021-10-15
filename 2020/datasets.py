@@ -154,6 +154,7 @@ class P300(Dataset):
         # tY = Y[:60]
         # X = X[60:]
         # Y = Y[60:]
+        np.random.seed(0)
         shuff_index = np.array(range(len(X)))
         shuff_index = np.random.permutation(shuff_index)
         X = X[shuff_index]

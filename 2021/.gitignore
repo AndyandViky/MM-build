@@ -1,0 +1,6 @@
+.DS_Store
+datasets/
+../.idea
+model.pkl
+predict.csv
+__pycache__
