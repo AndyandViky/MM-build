@@ -113,29 +113,13 @@ def main():
             for item in range(6):
                 plt.rcParams["font.family"] = 'Arial Unicode MS'
                 plt.subplot(3, 2, item + 1)
-                plt.plot(labelA.data.cpu().numpy()[:, item], 'b')
-                plt.plot(logitA.data.cpu().numpy()[:, item], 'r')
+                plt.plot(labelA1.data.cpu().numpy()[:, item], 'b')
+                plt.plot(logitA1.data.cpu().numpy()[:, item], 'r')
                 plt.ylabel(u'训练过程')
                 plt.xticks(rotation=45)
             plt.savefig('./result.png', dpi=600)
 
     torch.save(model, './SequentialRegressionMutiArea.pk')
-
-
-def test():
-    INPUT_DIM = 150
-    OUTPUT_DIM = 2
-    HIDDEN_DIM = 32
-
-    model = SequentialRegression(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM).to(DEVICE)
-    model.load_state_dict(torch.load('./SequentialRegression.pk'))
-    test_loader = get_dataloader(dataset_path='A', test=True, batch_size=5000, shuffle=False)
-
-    # testing
-    model.eval()
-    with torch.no_grad():
-        t_data, t_label = next(iter(test_loader))
-        t_data = t_data.to(DEVICE)
 
 
 if __name__ == '__main__':
@@ -144,6 +128,4 @@ if __name__ == '__main__':
     begin = time.time()
     main()
     end = time.time()
-
     print(end - begin)
-    # test()

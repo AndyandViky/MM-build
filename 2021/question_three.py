@@ -78,22 +78,6 @@ def main():
     torch.save(model, './SequentialRegression.pk')
 
 
-def test():
-    INPUT_DIM = 150
-    OUTPUT_DIM = 2
-    HIDDEN_DIM = 32
-
-    model = SequentialRegression(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM).to(DEVICE)
-    model.load_state_dict(torch.load('./SequentialRegression.pk'))
-    test_loader = get_dataloader(dataset_path='A', test=True, batch_size=5000, shuffle=False)
-
-    # testing
-    model.eval()
-    with torch.no_grad():
-        t_data, t_label = next(iter(test_loader))
-        t_data = t_data.to(DEVICE)
-
-
 if __name__ == '__main__':
 
     import time
@@ -102,5 +86,3 @@ if __name__ == '__main__':
     end = time.time()
 
     print(end - begin)
-    # test()
-

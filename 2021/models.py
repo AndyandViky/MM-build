@@ -15,6 +15,26 @@ import numpy as np
 from torch import Tensor
 from typing import Tuple
 
+
+class Regression(nn.Module):
+    def __init__(self, input_dim: int, output_dim: int):
+        super(Regression, self).__init__()
+
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, 64),
+            nn.Dropout(0.2),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.Dropout(0.2),
+            nn.ReLU(),
+            nn.Linear(32, output_dim),
+        )
+
+    def forward(self, predict_feature: Tensor) -> Tensor:
+        output = self.net(predict_feature)
+        return output
+
+
 class SequentialRegression(nn.Module):
     def __init__(self, pre_input_dim: int, tar_input_dim: int, seq_len: int, hidden_dim: int, output_dim: int):
         super(SequentialRegression, self).__init__()

@@ -31,7 +31,7 @@ def preprocess(root: str):
 
     target_df = pd.read_excel(root, sheet_name=sheet_names[1])
     target_df.drop(target_df.columns[1], axis=1, inplace=True)
-    target_df = target_df.replace("—", 0.0)
+    # target_df = target_df.replace("—", 0.0)
     for index, row in target_df.iteritems():
         if index == '监测时间':
             continue
@@ -91,8 +91,47 @@ class AirQuality(Dataset):
                    target_label[int(p_l * training_rate) + look_back:]
 
 
+class AirQualityV1(Dataset):
+
+    def __init__(self, root, train=True, transform=None, look_back=None):
+        super(AirQualityV1, self).__init__()
+
+        self.root = root
+        self.train = train
+        self.transform = transform
+
+        self.pre_data, self.tar_label = self._get_data_from_csv(root, train)
+
+    def __getitem__(self, index):
+        pre, label = self.pre_data[index], self.tar_label[index]
+        if self.transform is not None:
+            pre = self.transform(pre)
+            label = self.transform(label)
+        return pre.type(torch.float32), label.type(torch.float32)
+
+    def __len__(self):
+        return len(self.tar_label)
+
+    def _get_data_from_csv(self, root: str, train: bool = True):
+        training_rate = 0.5
+        data = pd.read_csv(root).values
+        predict_features = data[:, 1:22].astype(np.float)
+        target_features = data[:, 23:29].astype(np.float)
+        target_label = target_features - predict_features[:, 15:]
+        predict_features = L2_normalization(predict_features, axis=1)
+        # 用 predict 的特征，结合真实 label 进行预测，这样在预测 13 号数据时输入 13 号的预测特征进行辅助。
+        p_l, t_l = len(predict_features), len(target_features)
+        if train:
+            return predict_features[: int(p_l * training_rate)], \
+                   target_label[: int(p_l * training_rate)]
+        else:
+            return predict_features[int(p_l * training_rate):], \
+                   target_label[int(p_l * training_rate):]
+
+
 DATASET_FN_DICT = {
     'AirQuality': AirQuality,
+    'AirQualityV1': AirQualityV1,
 }
 
 
