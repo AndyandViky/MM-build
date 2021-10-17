@@ -39,8 +39,8 @@ class SequentialRegression(nn.Module):
     def __init__(self, pre_input_dim: int, tar_input_dim: int, seq_len: int, hidden_dim: int, output_dim: int):
         super(SequentialRegression, self).__init__()
 
-        self.predict_projection = nn.GRU(pre_input_dim, hidden_dim, 1, batch_first=True, bidirectional=True)
-        self.target_projection = nn.GRU(tar_input_dim, hidden_dim, 1, batch_first=True, bidirectional=True)
+        self.predict_projection = nn.GRU(pre_input_dim, hidden_dim, 1, batch_first=True, bidirectional=True, dropout=0.2)
+        self.target_projection = nn.GRU(tar_input_dim, hidden_dim, 1, batch_first=True, bidirectional=True, dropout=0.2)
 
         self.out = nn.Linear(hidden_dim * 2, output_dim)
 
@@ -58,6 +58,7 @@ class SequentialRegression(nn.Module):
         inner_att_tar = self.inner_attention(tar_out)
 
         output = self.out(self.outer_attention(inner_att_pre, inner_att_tar))
+        output = nn.Softplus()(output)
         # output = self.out(inner_att_pre + inner_att_tar)
         return output
 

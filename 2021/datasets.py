@@ -70,7 +70,7 @@ class AirQuality(Dataset):
         return len(self.label)
 
     def _get_data_from_csv(self, root: str, look_back: int, train: bool = True):
-        training_rate = 0.8
+        training_rate = 1
         data = pd.read_csv(root).values
         predict_features = data[:, 1:22].astype(np.float)
         target_features = data[:, 23:29].astype(np.float)
@@ -100,33 +100,41 @@ class AirQualityV1(Dataset):
         self.train = train
         self.transform = transform
 
-        self.pre_data, self.tar_label = self._get_data_from_csv(root, train)
+        self.pre_data, self.tar_label, self.target_features, self.predict_features = self._get_data_from_csv(root, train)
 
     def __getitem__(self, index):
-        pre, label = self.pre_data[index], self.tar_label[index]
+        pre, label, tar_f, pre_f = self.pre_data[index], self.tar_label[index], \
+                                   self.target_features[index], self.predict_features[index]
         if self.transform is not None:
             pre = self.transform(pre)
             label = self.transform(label)
-        return pre.type(torch.float32), label.type(torch.float32)
+            tar_f = self.transform(tar_f)
+            pre_f = self.transform(pre_f)
+        return pre.type(torch.float32), label.type(torch.float32), pre_f.type(torch.float32), tar_f.type(torch.float32)
 
     def __len__(self):
         return len(self.tar_label)
 
     def _get_data_from_csv(self, root: str, train: bool = True):
-        training_rate = 0.5
+        training_rate = 0.8
         data = pd.read_csv(root).values
         predict_features = data[:, 1:22].astype(np.float)
         target_features = data[:, 23:29].astype(np.float)
         target_label = target_features - predict_features[:, 15:]
-        predict_features = L2_normalization(predict_features, axis=1)
+        predict_features_norm = L2_normalization(predict_features, axis=1)
+        predict_features = predict_features[:, 15:]
         # 用 predict 的特征，结合真实 label 进行预测，这样在预测 13 号数据时输入 13 号的预测特征进行辅助。
-        p_l, t_l = len(predict_features), len(target_features)
+        p_l, t_l = len(predict_features_norm), len(target_features)
         if train:
-            return predict_features[: int(p_l * training_rate)], \
-                   target_label[: int(p_l * training_rate)]
+            return predict_features_norm[: int(p_l * training_rate)], \
+                   target_label[: int(p_l * training_rate)], \
+                   target_features[: int(p_l * training_rate)], \
+                   predict_features[: int(p_l * training_rate)]
         else:
-            return predict_features[int(p_l * training_rate):], \
-                   target_label[int(p_l * training_rate):]
+            return predict_features_norm[int(p_l * training_rate):], \
+                   target_label[int(p_l * training_rate):], \
+                   target_features[int(p_l * training_rate):], \
+                   predict_features[int(p_l * training_rate):]
 
 
 DATASET_FN_DICT = {
